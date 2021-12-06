@@ -1,0 +1,22 @@
+{
+  "name": "csgostats",
+  "stack": "heroku-20",
+  "description": "csgostats shiny application.",
+  "keywords": [
+    "r",
+    "shiny"
+  ],
+  "repository": "https://github.com/Piyar15/csgostats",
+  "logo": "",
+  "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "vsv/heroku-buildpack-r"
+    }
+  ]
+}
