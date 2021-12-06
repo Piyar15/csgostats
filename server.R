@@ -1,68 +1,40 @@
 library(shiny)
 library(DBI)
 library(RMySQL)
-library(shinythemes)
 library(DT)
 library(EloRating)
 library(ggplot2)
 library(stringr)
 
-source("guest.R")
 
-ui <- fluidPage(
-  navbarPage(
-    title = 'Menu',
-    id = 'navbar',
-    windowTitle = 'CSGOstats',
-    collapsible = TRUE,
-    theme = shinytheme('cosmo'),
-    
-    #home tabPanel
-    guestHomeTab,
-    #match demo tabPanel
-    guestMatchTab,
-    #rating demo tabPanel
-    guestRatingTab,
-    #registration tabPanel
-    guestRegistrationTab
-  ),
-  
-  tags$style(HTML("
-      @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital@1&display=swap');
-      body {
-        font-family: 'Merriweather', sans-serif;
-      }"))
-)
+shinyServer(function(input, output, session) {
 
-
-server <- function(input, output, session) {
-  
   #guset home
   
   #credentials assigning
-      user <- dbGetQuery(db, 'SELECT * FROM `user`')
-      credentials <- loginServer(
-        id = "loginUI",
-        data = user,
-        user_col = "login",
-        pwd_col = "password",
-        reload_on_logout = TRUE,
-        log_out = reactive(logout_init())
-      )
+  user <- dbGetQuery(db, 'SELECT * FROM `user`')
+  credentials <- loginServer(
+    id = "loginUI",
+    data = user,
+    user_col = "login",
+    pwd_col = "password",
+    reload_on_logout = TRUE,
+    log_out = reactive(logout_init())
+  )
   #logout   
-      logout_init <-
-        logoutServer(id = "logout",
-                     active = reactive(credentials()$user_auth))
+  logout_init <-
+    logoutServer(id = "logout",
+                 active = reactive(credentials()$user_auth))
   #logout button
-      insertUI(
-        selector = ".navbar .container-fluid .navbar-collapse",
-        ui = tags$ul(class = "nav navbar-nav navbar-right",
-                     tags$li(
-                       div(style = "padding: 10px; padding-top: 4px; padding-bottom: 0;",
-                           logoutUI("logout"))
-                     ))
-      )
-    
+  insertUI(
+    selector = ".navbar .container-fluid .navbar-collapse",
+    ui = tags$ul(class = "nav navbar-nav navbar-right",
+                 tags$li(
+                   div(style = "padding: 10px; padding-top: 4px; padding-bottom: 0;",
+                       logoutUI("logout"))
+                 ))
+  )
+  
   #login
   
   #authentication and tab selection for user/admin    
@@ -90,7 +62,7 @@ server <- function(input, output, session) {
       }
     }
   })
- 
+  
   #guest match
   
   #match table
@@ -113,31 +85,31 @@ server <- function(input, output, session) {
       guestMatchDetails <<- 0
     } else{
       if(length(selectedRow)){
-      updateActionButton(session, "guestMatchDetails", "Back")
-      matchId <- guestMatch[selectedRow, 1]
-      mapId <-
-        dbGetQuery(
-          db,
-          paste0(
-            "SELECT `id_map_result` FROM `result_detail` WHERE `id_result_detail` = (SELECT `id_result_detail` FROM `match_result` WHERE `id_result` = (SELECT `id_result` FROM `match` WHERE `id_match` = '",
-            matchId,
-            "'))"
+        updateActionButton(session, "guestMatchDetails", "Back")
+        matchId <- guestMatch[selectedRow, 1]
+        mapId <-
+          dbGetQuery(
+            db,
+            paste0(
+              "SELECT `id_map_result` FROM `result_detail` WHERE `id_result_detail` = (SELECT `id_result_detail` FROM `match_result` WHERE `id_result` = (SELECT `id_result` FROM `match` WHERE `id_match` = '",
+              matchId,
+              "'))"
+            )
           )
-        )
-      mapId <- paste(mapId[, 1], collapse = ", ")
-      result <-
-        dbGetQuery(
-          db,
-          paste0(
-            "SELECT mr.`map_score_1` As `score1`, mr.`map_score_2` AS `score2`, m.`name` AS `map name` FROM `map_result` AS mr
+        mapId <- paste(mapId[, 1], collapse = ", ")
+        result <-
+          dbGetQuery(
+            db,
+            paste0(
+              "SELECT mr.`map_score_1` As `score1`, mr.`map_score_2` AS `score2`, m.`name` AS `map name` FROM `map_result` AS mr
           LEFT JOIN `map` AS m
           ON mr.id_map=m.id_map
           WHERE `id_map_result` IN (",mapId,")"
+            )
           )
-        )
-      output$guestMatchTable = DT::renderDataTable(datatable(data = result, selection = "none"))
-      guestMatchDetails <<- 1
-    }}
+        output$guestMatchTable = DT::renderDataTable(datatable(data = result, selection = "none"))
+        guestMatchDetails <<- 1
+      }}
   })
   
   #guest team
@@ -225,33 +197,33 @@ server <- function(input, output, session) {
       userMatchDetails <<- 0
     } else{
       if(length(selectedRow)){
-      updateActionButton(session, "userMatchDetails", "Back")
-      matchId <- userMatch[selectedRow, 1]
-      mapId <-
-        dbGetQuery(
-          db,
-          paste0(
-            "SELECT `id_map_result` FROM `result_detail` WHERE `id_result_detail` = (SELECT `id_result_detail` FROM `match_result` WHERE `id_result` = (SELECT `id_result` FROM `match` WHERE `id_match` = '",
-            matchId,
-            "'))"
+        updateActionButton(session, "userMatchDetails", "Back")
+        matchId <- userMatch[selectedRow, 1]
+        mapId <-
+          dbGetQuery(
+            db,
+            paste0(
+              "SELECT `id_map_result` FROM `result_detail` WHERE `id_result_detail` = (SELECT `id_result_detail` FROM `match_result` WHERE `id_result` = (SELECT `id_result` FROM `match` WHERE `id_match` = '",
+              matchId,
+              "'))"
+            )
           )
-        )
-      mapId <- paste(mapId[, 1], collapse = ", ")
-      result <-
-        dbGetQuery(
-          db,
-          paste0(
-            "SELECT mr.`map_score_1` As `score1`, mr.`map_score_2` AS `score2`, m.`name` AS `map name` FROM `map_result` AS mr
+        mapId <- paste(mapId[, 1], collapse = ", ")
+        result <-
+          dbGetQuery(
+            db,
+            paste0(
+              "SELECT mr.`map_score_1` As `score1`, mr.`map_score_2` AS `score2`, m.`name` AS `map name` FROM `map_result` AS mr
           LEFT JOIN `map` AS m
           ON mr.id_map=m.id_map
           WHERE `id_map_result` IN (",
-            mapId,
-            ")"
+              mapId,
+              ")"
+            )
           )
-        )
-      output$userMatchTable = DT::renderDataTable(datatable(data = result, selection = "none"))
-      userMatchDetails <<- 1
-    }}
+        output$userMatchTable = DT::renderDataTable(datatable(data = result, selection = "none"))
+        userMatchDetails <<- 1
+      }}
   })
   
   #user team
@@ -286,25 +258,25 @@ server <- function(input, output, session) {
       teamDetails <<- 0
     } else{
       if(length(selectedRow)){
-      updateActionButton(session, "userTeamDetails", "Back")
-      selectedTeamName <- eloDf[selectedRow,1]
-      selectedTeamName <- str_replace_all(selectedTeamName, " ", ".")
-      teamRatings <- data.frame(eloResult[["mat"]])
-      selectedTeamRating <- teamRatings[[selectedTeamName]]
-      selectedTeamRating <- as.list(selectedTeamRating)
-      ratingDate <- t(data.frame(eloResult[["truedates"]]))
-      ratingDate  <- as.list(ratingDate)
-      teamRatingDf <- do.call(rbind, Map(data.frame, date=ratingDate, rating=selectedTeamRating))
-      finalteamRatingDf <- teamRatingDf[complete.cases(teamRatingDf),]
-      finalteamRatingDf$date <- as.Date(finalteamRatingDf$date)
-      
-      output$userTeamTable = DT::renderDataTable(datatable(data = finalteamRatingDf, selection = "none"))
-      
-      output$userTeamPlot <- renderPlot({
-        ggplot(finalteamRatingDf, aes(x=date, y=rating)) + geom_line() + theme_classic()
-      })
-      teamDetails <<- 1
-    }}
+        updateActionButton(session, "userTeamDetails", "Back")
+        selectedTeamName <- eloDf[selectedRow,1]
+        selectedTeamName <- str_replace_all(selectedTeamName, " ", ".")
+        teamRatings <- data.frame(eloResult[["mat"]])
+        selectedTeamRating <- teamRatings[[selectedTeamName]]
+        selectedTeamRating <- as.list(selectedTeamRating)
+        ratingDate <- t(data.frame(eloResult[["truedates"]]))
+        ratingDate  <- as.list(ratingDate)
+        teamRatingDf <- do.call(rbind, Map(data.frame, date=ratingDate, rating=selectedTeamRating))
+        finalteamRatingDf <- teamRatingDf[complete.cases(teamRatingDf),]
+        finalteamRatingDf$date <- as.Date(finalteamRatingDf$date)
+        
+        output$userTeamTable = DT::renderDataTable(datatable(data = finalteamRatingDf, selection = "none"))
+        
+        output$userTeamPlot <- renderPlot({
+          ggplot(finalteamRatingDf, aes(x=date, y=rating)) + geom_line() + theme_classic()
+        })
+        teamDetails <<- 1
+      }}
   })
   
   #user prediction
@@ -693,9 +665,7 @@ server <- function(input, output, session) {
     user <- dbGetQuery(db, 'SELECT * FROM `user`')
     output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
   })
-}
+})
 
 #db disconnect
 onStop(function(){dbDisconnect(db)})
-
-shinyApp(ui = ui, server = server)
