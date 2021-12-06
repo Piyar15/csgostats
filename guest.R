@@ -2,6 +2,7 @@ library(shinyauthr)
 library(DBI)
 library(RMySQL)
 library(EloRating)
+library(stringr)
 
 db <- dbConnect(
   drv = RMySQL::MySQL(),
