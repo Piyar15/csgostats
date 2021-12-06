@@ -1,4 +1,6 @@
 library(shinyauthr)
+library(DBI)
+library(RMySQL)
 
 db <- dbConnect(
   drv = RMySQL::MySQL(),
