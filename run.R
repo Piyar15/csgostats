@@ -1,4 +1,4 @@
-ibrary(shiny)
+library(shiny)
 
 port <- Sys.getenv('PORT')
 
