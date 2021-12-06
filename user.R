@@ -1,3 +1,7 @@
+library(shiny)
+library(DBI)
+library(RMySQL)
+
 userMatch <- dbGetQuery(
   db,
   'SELECT m.id_match, t1.name AS `team1`, ms1.match_score_1 AS `score1`, ms2.match_score_2 AS `score2`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`

@@ -1,3 +1,7 @@
+library(shiny)
+library(DBI)
+library(RMySQL)
+
 event <- dbGetQuery(db, 'SELECT * FROM `event`')
 map <- dbGetQuery(db, 'SELECT * FROM `map`')
 
