@@ -2,9 +2,11 @@ library(shinyauthr)
 
 db <- dbConnect(
   drv = RMySQL::MySQL(),
-  dbname = "blka5yb83x42vvyd",
-  host = "127.0.0.1",
-  username = "root"
+  dbname = "y0zlx2cmef3wsvlh",
+  host = "r6ze0q02l4me77k3.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+  username = "xjiuy6rmzs2l3vvz",
+  password = "x6b1rv2e2u3puqce",
+  port = 3306
 )
 
 user <- dbGetQuery(db, 'SELECT * FROM `user`')
