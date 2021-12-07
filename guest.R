@@ -32,7 +32,7 @@ guestMatch <- dbGetQuery(
       ON m.id_team_2=t2.id_team
       LEFT JOIN `event` AS e
       ON m.id_event=e.id_event
-      WHERE DATEDIFF(CURDATE(),date) < 31
+      WHERE DATEDIFF(CURDATE(),date) < 31 AND m.id_result IS NOT NULL
       ORDER BY date DESC'
 )
 
@@ -67,11 +67,16 @@ guestRegistrationTab <- tabPanel(title = 'Registration',
                                  sidebarLayout(
                                    sidebarPanel(htmlOutput("guestRegistration"),),
                                    mainPanel(
-                                     textInput("login", "Login: (3 to 15 characters)"),
+                                     wellPanel(
+                                       h2("Registration", class = "text-center"),
+                                       style = "width: 500px; max-width: 100%; margin: 0 auto; padding: 20px;",
+                                     textInput("login", "User Name: (3 to 15 characters)"),
                                      textInput("password", "Password: (8 to 23 characters)"),
                                      textInput("email", "Email:"),
-                                     actionButton("comfirm", "Confirm"),
-                                     textOutput("invalidData")
+                                     div(
+                                       style = "text-align: center;",
+                                     actionButton("comfirm", "Confirm", class = "btn-primary", style = "color: white")),
+                                     textOutput("invalidData"))
                                    )
                                  ))
 
@@ -92,6 +97,7 @@ eloData <-dbGetQuery(
   ON m.id_result=ms2.id_result
   LEFT JOIN `team` AS t2
   ON m.id_team_2=t2.id_team
+  WHERE m.id_result IS NOT NULL
   ORDER BY date")
 
 eloResult <- elo.seq(winner = eloData$winner, loser = eloData$loser, Date = eloData$date, k = 32)

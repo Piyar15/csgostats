@@ -11,6 +11,13 @@ shinyServer(function(input, output, session) {
 
   #guset home
   
+  #home description
+  output$guestHomeDescription <- renderText({
+    HTML(paste("Welcome to CSGOstats project that is focused on analazing esport matches from Counter-Strike: Global Offensive game to create rankings and predictions <br/> <br/>
+               Log in to gain access to advanced funtions <br/> <br/>
+               You can create new account on 'Registration' page  <br/> <br/>"))
+  })
+  
   #credentials assigning
   user <- dbGetQuery(db, 'SELECT * FROM `user`')
   credentials <- loginServer(
@@ -51,6 +58,8 @@ shinyServer(function(input, output, session) {
         appendTab("navbar", userMatchTab, select = TRUE)
         appendTab("navbar", userTeamTab)
         appendTab("navbar", userPredictionTab)
+        appendTab("navbar", userPredictionGameTab)
+        appendTab("navbar", userGameRankingTab)
       }else if(type == "admin"){
         source("admin.R")
         appendTab("navbar", adminMatchTab, select = TRUE)
@@ -132,7 +141,7 @@ shinyServer(function(input, output, session) {
   
   #registration description
   output$guestRegistration <- renderText({
-    HTML(paste("This page allows to create a new account <br/> <br/>"))
+    HTML(paste("Fill in the data and click 'Confirm' button to register <br/> <br/>"))
   })
   
   #registration data validation and db insert
@@ -303,6 +312,56 @@ shinyServer(function(input, output, session) {
       pie(c(probability, 100 - probability), labels = c(paste(team1," ",probability,"%"), paste(team2," ",100 - probability,"%")), col = rainbow(2), main="Probability chart")
     })
   })
+  
+  #user prediction game
+  
+  #prediction game table
+  output$userPredictionGameTable = DT::renderDataTable(datatable(data = userPredictionGame[,-1], selection = "single"))
+  
+  #prediction game description
+  output$userPredictionGameDescription <- renderText({
+    HTML(paste("This page allows to play a game where user can try to predict winner of a future match and and earn a ranking point<br/> <br/>
+          After choosing match in the table pick the team and click 'Confirm' button <br/> <br/>"))
+  })
+  
+  #update radioButton choices / clear text
+  observe({
+    selectedRow <- as.numeric(input$userPredictionGameTable_rows_selected)
+    output$userPredictionGameConfirm <- renderText({
+      HTML(paste(""))
+    })
+    if(length(selectedRow)){
+    updateRadioButtons(session, "teamChoice", choices = c(userPredictionGame$team1[selectedRow],userPredictionGame$team2[selectedRow]))}
+  })
+  
+  #prediction confirm
+  observeEvent(input$predictionComfirm, {
+    userName <- credentials()$info[["login"]]
+    userId <- dbGetQuery(db, paste0("SELECT id_user FROM `user` WHERE login = '",userName,"'"))
+    selectedRow <- as.numeric(input$userPredictionGameTable_rows_selected)
+    matchId <- as.numeric(userPredictionGame[selectedRow,1])
+    userPrediction <- dbGetQuery(db, paste0("SELECT * FROM `user_prediction` WHERE id_user = '",userId,"' AND id_match = '",matchId,"'"))
+    userChoice <- ifelse(input$teamChoice == userPredictionGame$team1[selectedRow],0,1)
+    if(length(selectedRow) && dim(userPrediction)[1] == 0){
+    dbGetQuery(db, paste0("INSERT INTO `user_prediction`(`id_user_prediction`,`id_user`,`id_match`,`user_choice`) VALUES (NUll,'",userId,"','",matchId,"','",userChoice,"')"))
+      output$userPredictionGameConfirm <- renderText({
+        HTML(paste("<br/> <br/> Prediction confirmed! <br/> <br/>"))
+      })
+      }
+      })
+  
+  #user ranking
+  
+  userRanking <- dbGetQuery(db, "SELECT login, user_score AS 'score' FROM `user` WHERE user_score IS NOT NULL ORDER BY user_score DESC")
+  
+  #ranking description
+  
+  output$userGameRankingDescription <- renderText({
+    HTML(paste("This page shows ranking of users taking part in the 'User Prediction' game <br/> <br/>"))
+  })
+  
+  #ranking table
+  output$userGameRankingTable = DT::renderDataTable(datatable(data = userRanking, selection = "single"))
   
   #admin data refresh
   
@@ -491,8 +550,8 @@ shinyServer(function(input, output, session) {
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC")
-    score1 <- 0
-    score2 <- 0
+     score1 <- 0
+     score2 <- 0
     selectedRows <- as.numeric(input$resultTable_rows_selected)
     resultDetailId <- dbGetQuery(db, 'SELECT MAX(id_result_detail) FROM `result_detail`') + 1
     resultDetailId <- as.numeric(resultDetailId[1,1])
@@ -507,7 +566,21 @@ shinyServer(function(input, output, session) {
     resultId <- dbGetQuery(db,paste0("SELECT `id_result` FROM `match_result` WHERE `id_result_detail`='",resultDetailId,"'"))
     dbGetQuery(db,paste0("UPDATE `match` SET `id_result`='",resultId,"' WHERE `id_match`='",matchId,"'"))
     updateTabsetPanel(session, "navbar", "Match")
-  })
+  
+    #update user score
+    predictingUsers <- dbGetQuery(db, paste0("SELECT `id_user` FROM `user_prediction` WHERE id_match = '",matchId,"'"))
+    for(id in predictingUsers){
+      userPrediction <- dbGetQuery(db, paste0("SELECT user_choice FROM `user_prediction` WHERE id_match = '",matchId,"'"))
+      userScore <- dbGetQuery(db, paste0("SELECT user_score FROM `user` WHERE id_user = '",id,"'"))
+      if(score1>score2 && userPrediction == 0){
+        userNewScore <- ifelse(is.na(userScore),1,userScore+1)
+        dbGetQuery(db,paste0("UPDATE `user` SET `user_score`='",userNewScore,"' WHERE `id_user`='",id,"'"))
+      }else if(score1<score2 && userPrediction == 1){
+          userNewScore <- ifelse(is.na(userScore),1,userScore+1)
+          dbGetQuery(db,paste0("UPDATE `user` SET `user_score`='",userNewScore,"' WHERE `id_user`='",id,"'"))
+      }
+    }
+    })
   
   #admin team
   

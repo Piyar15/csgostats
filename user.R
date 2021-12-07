@@ -16,8 +16,25 @@ userMatch <- dbGetQuery(
       ON m.id_team_2=t2.id_team
       LEFT JOIN `event` AS e
       ON m.id_event=e.id_event
+      WHERE m.id_result IS NOT NULL
       ORDER BY date DESC'
 )
+
+userPredictionGame <-
+  dbGetQuery(
+    db,
+    'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`,
+      date, match_type AS `match type`
+      FROM `match` AS m
+      LEFT JOIN `team` AS t1
+      ON m.id_team_1=t1.id_team
+      LEFT JOIN `team` AS t2
+      ON m.id_team_2=t2.id_team
+      LEFT JOIN `event` AS e
+      ON m.id_event=e.id_event
+      WHERE id_result IS NULL
+      ORDER BY date'
+  )
 
 team <- dbGetQuery(db, 'SELECT * FROM `team`')
 
@@ -53,6 +70,18 @@ userPredictionTab <- tabPanel(title = 'Prediction',
                                           textOutput("selectedTeams"))
                               ))
 
-  
-  
-  
+#user prediction tabPanel
+userPredictionGameTab <- tabPanel(title = 'User prediction',
+                              sidebarLayout(sidebarPanel(
+                                htmlOutput("userPredictionGameDescription"),
+                                radioButtons("teamChoice", "Choose a team", choices = c(userPredictionGame$team1[1],userPredictionGame$team2[1])),
+                                actionButton("predictionComfirm", "Confirm"),
+                                htmlOutput("userPredictionGameConfirm")),
+                                mainPanel(DT::dataTableOutput('userPredictionGameTable')))
+                              )
+#user ranking tabPanel
+userGameRankingTab <- tabPanel(title = 'User ranking',
+                                  sidebarLayout(sidebarPanel(
+                                    htmlOutput("userGameRankingDescription")),
+                                    mainPanel(DT::dataTableOutput('userGameRankingTable')))
+)
