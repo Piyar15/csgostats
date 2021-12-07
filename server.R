@@ -327,10 +327,15 @@ shinyServer(function(input, output, session) {
   #update radioButton choices / clear text
   observe({
     selectedRow <- as.numeric(input$userPredictionGameTable_rows_selected)
-    output$userPredictionGameConfirm <- renderText({
-      HTML(paste(""))
-    })
+    userName <- credentials()$info[["login"]]
+    userId <- dbGetQuery(db, paste0("SELECT id_user FROM `user` WHERE login = '",userName,"'"))
+    matchId <- as.numeric(userPredictionGame[selectedRow,1])
+    chosenTeam <- dbGetQuery(db, paste0("SELECT user_choice FROM `user_prediction` WHERE id_user = '",userId,"' AND id_match = '",matchId,"'"))
+    chosenTeamName <- ifelse(chosenTeam == 0, userPredictionGame$team1[selectedRow], userPredictionGame$team2[selectedRow])
     if(length(selectedRow)){
+      output$userPredictionGameConfirm <- renderText({
+        HTML(paste0("<br/> <br/> Chosen team: ",chosenTeamName))
+      })
     updateRadioButtons(session, "teamChoice", choices = c(userPredictionGame$team1[selectedRow],userPredictionGame$team2[selectedRow]))}
   })
   
@@ -342,10 +347,14 @@ shinyServer(function(input, output, session) {
     matchId <- as.numeric(userPredictionGame[selectedRow,1])
     userPrediction <- dbGetQuery(db, paste0("SELECT * FROM `user_prediction` WHERE id_user = '",userId,"' AND id_match = '",matchId,"'"))
     userChoice <- ifelse(input$teamChoice == userPredictionGame$team1[selectedRow],0,1)
-    if(length(selectedRow) && dim(userPrediction)[1] == 0){
+    if(length(selectedRow)){
+      if(dim(userPrediction)[1] == 0){
     dbGetQuery(db, paste0("INSERT INTO `user_prediction`(`id_user_prediction`,`id_user`,`id_match`,`user_choice`) VALUES (NUll,'",userId,"','",matchId,"','",userChoice,"')"))
+      }else{
+        dbGetQuery(db, paste0("UPDATE `user_prediction` SET user_choice = '",userChoice,"' WHERE id_user = '",userId,"' AND id_match = '",matchId,"'"))
+    }
       output$userPredictionGameConfirm <- renderText({
-        HTML(paste("<br/> <br/> Prediction confirmed! <br/> <br/>"))
+        HTML(paste("<br/> <br/> Prediction confirmed!"))
       })
       }
       })
@@ -363,7 +372,7 @@ shinyServer(function(input, output, session) {
   #ranking table
   output$userGameRankingTable = DT::renderDataTable(datatable(data = userRanking, selection = "single"))
   
-  #admin data refresh
+  #data refresh
   
   observeEvent(input$navbar,{
     if(input$navbar == "Match"){
@@ -376,6 +385,11 @@ shinyServer(function(input, output, session) {
     if(input$navbar == "Result"){
       map <- dbGetQuery(db, 'SELECT * FROM `map`')
       updateSelectInput(session, "mapScoreName", choices = map[,2])
+    }
+    if(input$navbar != "User prediction"){
+      output$userPredictionGameConfirm <- renderText({
+        HTML(paste(""))
+      })
     }
   })
   
