@@ -8,6 +8,13 @@ library(stringr)
 
 
 shinyServer(function(input, output, session) {
+  
+  #inactivity prevention
+  autoInvalidate <- reactiveTimer(10000)
+  observe({
+    autoInvalidate()
+    cat(".")
+  })
 
   #guset home
   
