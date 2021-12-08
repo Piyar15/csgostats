@@ -326,6 +326,7 @@ shinyServer(function(input, output, session) {
   
   #update radioButton choices / clear text
   observe({
+    source("user.R")
     selectedRow <- as.numeric(input$userPredictionGameTable_rows_selected)
     userName <- credentials()$info[["login"]]
     userId <- dbGetQuery(db, paste0("SELECT id_user FROM `user` WHERE login = '",userName,"'"))
