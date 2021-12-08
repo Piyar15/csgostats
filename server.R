@@ -591,6 +591,7 @@ shinyServer(function(input, output, session) {
   
     #update user score
     predictingUsers <- dbGetQuery(db, paste0("SELECT `id_user` FROM `user_prediction` WHERE id_match = '",matchId,"'"))
+    if(dim(predictingUsers)[1] != 0)
     for(id in predictingUsers){
       userPrediction <- dbGetQuery(db, paste0("SELECT user_choice FROM `user_prediction` WHERE id_match = '",matchId,"'"))
       userScore <- dbGetQuery(db, paste0("SELECT user_score FROM `user` WHERE id_user = '",id,"'"))
