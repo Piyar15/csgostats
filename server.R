@@ -304,21 +304,27 @@ shinyServer(function(input, output, session) {
   })
   
   #prediction update
-  observe({
-    choices <- team[,2]
-    team1 <- input$team1Name
-    team2 <- input$team2Name
-    updateSelectInput(session, "team1Name", choices = choices[choices != team2], selected = team1)
-    updateSelectInput(session, "team2Name", choices = choices[choices != team1], selected = team2)
-    probability <- winprob(extract_elo(eloResult, IDs = team1), extract_elo(eloResult, IDs = team2))
-    probability <- round(probability * 100)
-    output$selectedTeams <- renderText({
-      paste("Team ",team1,"have a",probability,"% chance to win against Team ",team2,"according to the 'Elo System'")
-    })
-    output$predictionPlot <- renderPlot({
-      pie(c(probability, 100 - probability), labels = c(paste(team1," ",probability,"%"), paste(team2," ",100 - probability,"%")), col = rainbow(2), main="Probability chart")
-    })
-  })
+  observeEvent(input$navbar,{
+    if(input$navbar == "Prediction"){
+      observe({
+        team <- dbGetQuery(db, 'SELECT * FROM `team`')
+        choices <- team[,2]
+        team1 <- input$team1Name
+        team2 <- input$team2Name
+        updateSelectInput(session, "team1Name", choices = choices[choices != team2], selected = team1)
+        updateSelectInput(session, "team2Name", choices = choices[choices != team1], selected = team2)
+        probability <- winprob(extract_elo(eloResult, IDs = team1), extract_elo(eloResult, IDs = team2))
+        probability <- round(probability * 100)
+        output$selectedTeams <- renderText({
+          paste("Team ",team1,"have a",probability,"% chance to win against Team ",team2,"according to the 'Elo System'")
+        })
+        output$predictionPlot <- renderPlot({
+          pie(c(probability, 100 - probability), labels = c(paste(team1," ",probability,"%"), paste(team2," ",100 - probability,"%")), col = rainbow(2), main="Probability chart")
+        })
+      })
+  }})
+  
+  
   
   #user prediction game
   
