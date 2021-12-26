@@ -38,23 +38,32 @@ guestMatch <- dbGetQuery(
 
 guestHomeTab <- tabPanel(title = 'Home',
                          sidebarLayout(sidebarPanel(
-                           htmlOutput("guestHomeDescription")),
+                          p("Welcome to CSGO statistics project that is focused on
+                             analazing esport matches from Counter-Strike: Global
+                             Offensive game to create rankings and predictions"),
+                          p("Log in to gain access to advanced funtions"),
+                          p("You can create new account on 'Registration' page ")),
                            mainPanel(shinyauthr::loginUI(id = "loginUI"))
                          ))
 
 guestMatchTab <- tabPanel(title = 'Match history demo',
                           sidebarLayout(
                             sidebarPanel(
-                              htmlOutput("guestMatchDescription"),
+                              p("This page shows the match history from the last 30 days"),
+                              p("To see detailed map scores choose a row from the
+                                table then click the 'Details' button"),
                               actionButton("guestMatchDetails", "Details")
                             ),
                             mainPanel(DT::dataTableOutput('guestMatchTable'))
                           ))
 
 guestRatingTab <- tabPanel(title = 'Team rating demo',
-                           sidebarLayout(sidebarPanel(htmlOutput(
-                             "guestTeamDescription"
-                           ),),
+                           sidebarLayout(sidebarPanel(
+                             p("This page shows the team ranking of top ten teams
+                               created with the use of the 'Elo System' and is
+                               updated after every match"),
+                             p("Plot tab shows the rating history of the teams")
+                           ),
                            mainPanel(
                              tabsetPanel(
                                type = "tabs",
@@ -65,7 +74,9 @@ guestRatingTab <- tabPanel(title = 'Team rating demo',
 
 guestRegistrationTab <- tabPanel(title = 'Registration',
                                  sidebarLayout(
-                                   sidebarPanel(htmlOutput("guestRegistration"),),
+                                   sidebarPanel(
+                                     p("Fill in the data and click 'Confirm' button to register")
+                                   ),
                                    mainPanel(
                                      wellPanel(
                                        h2("Registration", class = "text-center"),

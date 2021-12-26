@@ -42,7 +42,9 @@ team <- dbGetQuery(db, 'SELECT * FROM `team`')
 userMatchTab <- tabPanel(title = 'Match history',
                          sidebarLayout(
                            sidebarPanel(
-                             htmlOutput("userMatchDescription"),
+                             p("This page shows the match history"),
+                             p("To see detailed map scores choose a row from the
+                               table then click the 'Details' button"),
                              actionButton("userMatchDetails", "Details")),
                            mainPanel(
                              DT::dataTableOutput('userMatchTable'))
@@ -50,7 +52,13 @@ userMatchTab <- tabPanel(title = 'Match history',
 #team tabPanel
 userTeamTab <- tabPanel(title = 'Team rating',
                         sidebarLayout(sidebarPanel(
-                          htmlOutput("userTeamDescription"),
+                          p("This page shows the team ranking created with the use
+                            of the 'Elo System' and is updated after every match"),
+                          p("Plot tab shows the rating history of the teams"),
+                          p("To see rating history for a single team choose a row
+                            from the table then click the 'Details' button"),
+                          p("After pressing the button, plot tab content is changed
+                            to the chosen team rating history"),
                           actionButton("userTeamDetails", "Details")
                         ),
                         mainPanel(
@@ -63,7 +71,8 @@ userTeamTab <- tabPanel(title = 'Team rating',
 #prediction tabPanel
 userPredictionTab <- tabPanel(title = 'Prediction',
                               sidebarLayout(sidebarPanel(
-                                htmlOutput("userPredictionDescription"),
+                                p("This page shows the percentage win chance of two chosen teams"),
+                                p("Simply choose two teams and prediction will automatically update"),
                                 selectInput("team1Name", "Team 1 name:", team[, 2]),
                                 selectInput("team2Name", "Team 2 name:", team[-1, 2])),
                                 mainPanel(plotOutput('predictionPlot'),
@@ -73,8 +82,10 @@ userPredictionTab <- tabPanel(title = 'Prediction',
 #user prediction tabPanel
 userPredictionGameTab <- tabPanel(title = 'User prediction',
                               sidebarLayout(sidebarPanel(
-                                htmlOutput("userPredictionGameDescription"),
-                                radioButtons("teamChoice", "Choose a team", choices = c(userPredictionGame$team1[1],userPredictionGame$team2[1])),
+                                p("This page allows to play a game where user can
+                                  try to predict winner of a future match and earn a ranking point"),
+                                p("After choosing match in the table pick the team and click 'Confirm' button"),
+                                radioButtons("teamChoice", "Choose a team", choices = c("No match selected")),
                                 actionButton("predictionComfirm", "Confirm"),
                                 htmlOutput("userPredictionGameConfirm")),
                                 mainPanel(DT::dataTableOutput('userPredictionGameTable')))
@@ -82,6 +93,7 @@ userPredictionGameTab <- tabPanel(title = 'User prediction',
 #user ranking tabPanel
 userGameRankingTab <- tabPanel(title = 'User ranking',
                                   sidebarLayout(sidebarPanel(
-                                    htmlOutput("userGameRankingDescription")),
+                                    p("This page shows ranking of users taking part in the 'User Prediction' game")
+                                    ),
                                     mainPanel(DT::dataTableOutput('userGameRankingTable')))
 )

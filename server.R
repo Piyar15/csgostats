@@ -6,7 +6,6 @@ library(EloRating)
 library(ggplot2)
 library(stringr)
 
-
 shinyServer(function(input, output, session) {
   
   #inactivity prevention
@@ -16,14 +15,7 @@ shinyServer(function(input, output, session) {
     cat(".")
   })
 
-  #guset home
-  
-  #home description
-  output$guestHomeDescription <- renderText({
-    HTML(paste("Welcome to CSGOstats project that is focused on analazing esport matches from Counter-Strike: Global Offensive game to create rankings and predictions <br/> <br/>
-               Log in to gain access to advanced funtions <br/> <br/>
-               You can create new account on 'Registration' page  <br/> <br/>"))
-  })
+  #guest home
   
   #credentials assigning
   user <- dbGetQuery(db, 'SELECT * FROM `user`')
@@ -84,12 +76,6 @@ shinyServer(function(input, output, session) {
   #match table
   output$guestMatchTable = DT::renderDataTable(datatable(data = guestMatch[,-1], selection = "single"))
   
-  #match description
-  output$guestMatchDescription <- renderText({
-    HTML(paste("This page shows the match history from the last 30 days <br/> <br/>
-               To see detailed map scores choose a row from the table then click the 'Details' button <br/> <br/>"))
-  })
-  
   guestMatchDetails <<- 0
   
   #map details
@@ -138,19 +124,8 @@ shinyServer(function(input, output, session) {
     eloplot(eloResult, ids = eloDf[1:10,1])
   })
   
-  #team description
-  output$guestTeamDescription <- renderText({
-    HTML(paste("This page shows the team ranking of top ten teams created with the use of the 'Elo System' and is updated after every match <br/> <br/>
-          Plot tab shows the rating history of the teams <br/> <br/>"))
-  })
-  
   #guest registration
-  
-  #registration description
-  output$guestRegistration <- renderText({
-    HTML(paste("Fill in the data and click 'Confirm' button to register <br/> <br/>"))
-  })
-  
+
   #registration data validation and db insert
   observeEvent(input$comfirm, {
     loginValidation <- TRUE %in% (input$login == user$login)
@@ -195,12 +170,6 @@ shinyServer(function(input, output, session) {
   
   #match table
   output$userMatchTable = DT::renderDataTable(datatable(data = userMatch[,-1], selection = "single"))
-  
-  #match description
-  output$userMatchDescription <- renderText({
-    HTML(paste("This page shows the match history <br/> <br/>
-          To see detailed map scores choose a row from the table then click the 'Details' button <br/> <br/>"))
-  })
   
   userMatchDetails <<- 0
   
@@ -251,15 +220,7 @@ shinyServer(function(input, output, session) {
   output$userTeamPlot <- renderPlot({
     eloplot(eloResult)
   })
-  
-  #team description
-  output$userTeamDescription <- renderText({
-    HTML(paste("This page shows the team ranking created with the use of the 'Elo System' and is updated after every match <br/> <br/>
-          Plot tab shows the rating history of the teams <br/> <br/>
-          To see rating history for a single team choose a row from the table then click the 'Details' button <br/> <br/>
-          Plot tab shows the chosen team rating history <br/> <br/>"))
-  })
-  
+
   teamDetails <<- 0
   
   #single team details and single team plot 
@@ -297,13 +258,7 @@ shinyServer(function(input, output, session) {
   })
   
   #user prediction
-  
-  #prediction description
-  output$userPredictionDescription <- renderText({
-    HTML(paste("This page shows the percentage win chance of two chosen teams <br/> <br/>
-          Simply choose two teams and prediction will automatically update <br/> <br/>"))
-  })
-  
+
   #prediction update
   observeEvent(input$navbar,{
     if(input$navbar == "Prediction"){
@@ -331,13 +286,7 @@ shinyServer(function(input, output, session) {
   
   #prediction game table
   output$userPredictionGameTable = DT::renderDataTable(datatable(data = userPredictionGame[,-1], selection = "single"))
-  
-  #prediction game description
-  output$userPredictionGameDescription <- renderText({
-    HTML(paste("This page allows to play a game where user can try to predict winner of a future match and and earn a ranking point<br/> <br/>
-          After choosing match in the table pick the team and click 'Confirm' button <br/> <br/>"))
-  })
-  
+
   #update radioButton choices / clear text
   observe({
     source("user.R")
@@ -377,13 +326,7 @@ shinyServer(function(input, output, session) {
   #user ranking
   
   userRanking <- dbGetQuery(db, "SELECT login, user_score AS 'score' FROM `user` WHERE user_score IS NOT NULL ORDER BY user_score DESC")
-  
-  #ranking description
-  
-  output$userGameRankingDescription <- renderText({
-    HTML(paste("This page shows ranking of users taking part in the 'User Prediction' game <br/> <br/>"))
-  })
-  
+
   #ranking table
   output$userGameRankingTable = DT::renderDataTable(datatable(data = userRanking, selection = "single"))
   
