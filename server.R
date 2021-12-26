@@ -289,7 +289,8 @@ shinyServer(function(input, output, session) {
         output$userTeamTable = DT::renderDataTable(datatable(data = finalteamRatingDf, selection = "none"))
         
         output$userTeamPlot <- renderPlot({
-          ggplot(finalteamRatingDf, aes(x=date, y=rating)) + geom_line() + theme_classic()
+          g <- ggplot(finalteamRatingDf, aes(x=date, y=rating)) + geom_line() + theme_classic()
+          g+scale_x_date(date_labels = "%Y %b %d")
         })
         teamDetails <<- 1
       }}
