@@ -25,9 +25,8 @@ ORDER BY id_map_result DESC')
 
     #match tabPanel
     adminMatchTab <- tabPanel(title = 'Match',
-             sidebarLayout(
-               sidebarPanel(
-                 inputPanel(
+             sidebarLayout(sidebarPanel(
+                   h2(strong("Match"), class = "text-center"),
                    selectInput("team1Name", "Team 1 name:", team[,2]),
                    selectInput("team2Name", "Team 2 name:", team[,2]),
                    selectInput("matchEventName", "Event name:", event[,2]),
@@ -36,91 +35,73 @@ ORDER BY id_map_result DESC')
                    actionButton("matchAdd", "Add"),
                    actionButton("matchEdit", "Edit"),
                    actionButton("matchDelete", "Delete"),
-                   actionButton("matchDetails", "Details")
-                 )
-               ),
+                   actionButton("matchDetails", "Details")),
                mainPanel(shinyauthr::loginUI(id = "login"), DT::dataTableOutput('matchTable'))
              ))
     #result tabPanel
     adminResultTab <- tabPanel(title = 'Result',
-             sidebarLayout(
-               sidebarPanel(
-                 inputPanel(
+             sidebarLayout(sidebarPanel(
+                   h2(strong("Result"), class = "text-center"),
                    numericInput("team1Score", "Team 1 score:", value = 0),
                    numericInput("team2Score", "Team 2 score:", value = 0),
                    selectInput("mapScoreName", "Map name:", map[,2]),
                    actionButton("resultAdd", "Add"),
                    actionButton("resultEdit", "Edit"),
-                   actionButton("resultDelete", "Delete")
-                 )
-               ),
-               mainPanel(DT::dataTableOutput('resultTable'),
-                         actionButton("resultComfirm", "Confirm"))
+                   actionButton("resultDelete", "Delete"),
+                   actionButton("resultComfirm", "Confirm")),
+               mainPanel(DT::dataTableOutput('resultTable'))
              ))
     #team tabPanel
     adminTeamTab <- tabPanel(title = 'Team',
-             sidebarLayout(
-               sidebarPanel(
-                 inputPanel(
+             sidebarLayout(sidebarPanel(
+               h2(strong("Team"), class = "text-center"),
                    textInput("teamName", "Team name:"),
                    actionButton("teamAdd", "Add"),
                    actionButton("teamEdit", "Edit"),
-                   actionButton("teamDelete", "Delete")
-                 )
-               ),
+                   actionButton("teamDelete", "Delete")),
                mainPanel(DT::dataTableOutput('teamTable'))
              ))
     #map tabPanel
     adminMapTab <- tabPanel(title = 'Map',
-             sidebarLayout(
-               sidebarPanel(
-                 inputPanel(
+             sidebarLayout(sidebarPanel(
+                   h2(strong("Map"), class = "text-center"),
                    textInput("mapName", "Map name:"),
                    selectInput(
                      inputId = "activeDuty",
                      label = "Active duty status:",
-                     choices = c(0, 1),
-                   ),
+                     choices = c(0, 1)),
                    actionButton("mapAdd", "Add"),
                    actionButton("mapEdit", "Edit"),
-                   actionButton("mapDelete", "Delete")
-                 )
-               ),
+                   actionButton("mapDelete", "Delete")),
                mainPanel(DT::dataTableOutput('mapTable'))
              ))
     #event tabPanel
-    adminEventTab <- tabPanel(title = 'Event', sidebarLayout(
-      sidebarPanel(
-        inputPanel(
-          textInput("eventName", "Event name:"),
-          selectInput(
-            inputId = "eventType",
-            label = "Event type:",
-            choices = c("Online", "LAN"),
-          ),
-          actionButton("eventAdd", "Add"),
-          actionButton("eventEdit", "Edit"),
-          actionButton("eventDelete", "Delete")
-        )
-      ),
+    adminEventTab <- tabPanel(title = 'Event',
+              sidebarLayout(sidebarPanel(
+              h2(strong("Event"), class = "text-center"),
+              textInput("eventName", "Event name:"),
+              selectInput(
+                inputId = "eventType",
+                label = "Event type:",
+                choices = c("Online", "LAN")),
+              actionButton("eventAdd", "Add"),
+              actionButton("eventEdit", "Edit"),
+              actionButton("eventDelete", "Delete")),
       mainPanel(DT::dataTableOutput('eventTable'))
     ))
     #user tabPanel
-    adminUserTab <- tabPanel(title = 'User', sidebarLayout(
-      sidebarPanel(
-        inputPanel(
-          textInput("userLogin", "User login:"),
-          textInput("userPassword", "User password:"),
-          textInput("userEmail", "User email:"),
-          selectInput(
-            inputId = "userType",
-            label = "User type:",
-            choices = c("admin", "user"),
-          ),
-          actionButton("userAdd", "Add"),
-          actionButton("userEdit", "Edit"),
-          actionButton("userDelete", "Delete")
-        )
-      ),
+    adminUserTab <- tabPanel(title = 'User',
+              sidebarLayout(sidebarPanel(
+              h2(strong("User"), class = "text-center"),
+              textInput("userLogin", "User login:"),
+              textInput("userPassword", "User password:"),
+              textInput("userEmail", "User email:"),
+              selectInput(
+                inputId = "userType",
+                label = "User type:",
+                choices = c("admin", "user")),
+              actionButton("userAdd", "Add"),
+              actionButton("userEdit", "Edit"),
+              actionButton("userDelete", "Delete")),
       mainPanel(DT::dataTableOutput('userTable'))
     ))

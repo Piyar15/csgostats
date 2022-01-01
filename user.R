@@ -40,18 +40,19 @@ team <- dbGetQuery(db, 'SELECT * FROM `team`')
 
 #match tabPanel
 userMatchTab <- tabPanel(title = 'Match history',
-                         sidebarLayout(
-                           sidebarPanel(
+                         sidebarLayout(sidebarPanel(
+                            h2(strong("Match history"), class = "text-center"),
                              p("This page shows the match history"),
                              p("To see detailed map scores choose a row from the
                                table then click the 'Details' button"),
                              actionButton("userMatchDetails", "Details")),
-                           mainPanel(
+                           mainPanel(h3(strong(textOutput("userMapDetails")), class = "text-center"),
                              DT::dataTableOutput('userMatchTable'))
                          ))
 #team tabPanel
 userTeamTab <- tabPanel(title = 'Team rating',
                         sidebarLayout(sidebarPanel(
+                          h2(strong("Team rating"), class = "text-center"),
                           p("This page shows the team ranking created with the use
                             of the 'Elo System' and is updated after every match"),
                           p("Plot tab shows the rating history of the teams"),
@@ -64,13 +65,16 @@ userTeamTab <- tabPanel(title = 'Team rating',
                         mainPanel(
                           tabsetPanel(
                             type = "tabs",
-                            tabPanel("Table", DT::dataTableOutput('userTeamTable')),
-                            tabPanel("Plot", plotOutput('userTeamPlot'))
+                            tabPanel("Table", h3(strong(textOutput("userRatingTable")), class = "text-center"),
+                                     DT::dataTableOutput('userTeamTable')),
+                            tabPanel("Plot", h3(strong(textOutput("userRatingPlot")), class = "text-center"),
+                                     plotOutput('userTeamPlot'))
                           )
                         )))
 #prediction tabPanel
 userPredictionTab <- tabPanel(title = 'Prediction',
                               sidebarLayout(sidebarPanel(
+                                h2(strong("Prediction"), class = "text-center"),
                                 p("This page shows the percentage win chance of two chosen teams"),
                                 p("Simply choose two teams and prediction will automatically update"),
                                 selectInput("team1Name", "Team 1 name:", team[, 2]),
@@ -82,6 +86,7 @@ userPredictionTab <- tabPanel(title = 'Prediction',
 #user prediction tabPanel
 userPredictionGameTab <- tabPanel(title = 'User prediction',
                               sidebarLayout(sidebarPanel(
+                                h2(strong("User prediction"), class = "text-center"),
                                 p("This page allows to play a game where user can
                                   try to predict winner of a future match and earn a ranking point"),
                                 p("After choosing match in the table pick the team and click 'Confirm' button"),
@@ -93,6 +98,7 @@ userPredictionGameTab <- tabPanel(title = 'User prediction',
 #user ranking tabPanel
 userGameRankingTab <- tabPanel(title = 'User ranking',
                                   sidebarLayout(sidebarPanel(
+                                    h2(strong("User ranking"), class = "text-center"),
                                     p("This page shows ranking of users taking part in the 'User Prediction' game")
                                     ),
                                     mainPanel(DT::dataTableOutput('userGameRankingTable')))

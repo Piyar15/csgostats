@@ -82,33 +82,25 @@ shinyServer(function(input, output, session) {
   observeEvent(input$guestMatchDetails, {
     selectedRow <- as.numeric(input$guestMatchTable_rows_selected)
     if (guestMatchDetails == 1) {
+      output$guestMapDetails <- renderText("")
       updateActionButton(session, "guestMatchDetails", "Details")
       output$guestMatchTable = DT::renderDataTable(datatable(data = guestMatch[,-1], selection = "single"))
       guestMatchDetails <<- 0
     } else{
       if(length(selectedRow)){
+        output$guestMapDetails <- renderText(paste(guestMatch[selectedRow,2],"vs",guestMatch[selectedRow,5]))
         updateActionButton(session, "guestMatchDetails", "Back")
         matchId <- guestMatch[selectedRow, 1]
-        mapId <-
-          dbGetQuery(
-            db,
-            paste0(
+        mapId <- dbGetQuery(db, paste0(
               "SELECT `id_map_result` FROM `result_detail` WHERE `id_result_detail` = (SELECT `id_result_detail` FROM `match_result` WHERE `id_result` = (SELECT `id_result` FROM `match` WHERE `id_match` = '",
               matchId,
-              "'))"
-            )
-          )
+              "'))"))
         mapId <- paste(mapId[, 1], collapse = ", ")
-        result <-
-          dbGetQuery(
-            db,
-            paste0(
+        result <- dbGetQuery(db, paste0(
               "SELECT mr.`map_score_1` As `score1`, mr.`map_score_2` AS `score2`, m.`name` AS `map name` FROM `map_result` AS mr
           LEFT JOIN `map` AS m
           ON mr.id_map=m.id_map
-          WHERE `id_map_result` IN (",mapId,")"
-            )
-          )
+          WHERE `id_map_result` IN (",mapId,")"))
         output$guestMatchTable = DT::renderDataTable(datatable(data = result, selection = "none"))
         guestMatchDetails <<- 1
       }}
@@ -177,11 +169,13 @@ shinyServer(function(input, output, session) {
   observeEvent(input$userMatchDetails, {
     selectedRow <- as.numeric(input$userMatchTable_rows_selected)
     if (userMatchDetails == 1) {
+      output$userMapDetails <- renderText("")
       updateActionButton(session, "userMatchDetails", "Details")
       output$userMatchTable = DT::renderDataTable(datatable(data = userMatch[,-1], selection = "single"))
       userMatchDetails <<- 0
     } else{
       if(length(selectedRow)){
+        output$userMapDetails <- renderText(paste(userMatch[selectedRow,2],"vs",userMatch[selectedRow,5]))
         updateActionButton(session, "userMatchDetails", "Back")
         matchId <- userMatch[selectedRow, 1]
         mapId <-
@@ -217,16 +211,19 @@ shinyServer(function(input, output, session) {
   output$userTeamTable = DT::renderDataTable(datatable(data = eloDf, selection = "single"))
   
   #team plot
-  output$userTeamPlot <- renderPlot({
-    eloplot(eloResult)
-  })
+  output$userTeamPlot <- renderPlot({eloplot(eloResult)})
 
+  #team text
+  output$userRatingPlot <- renderText("Rating history")
+  
   teamDetails <<- 0
   
   #single team details and single team plot 
   observeEvent(input$userTeamDetails, {
     selectedRow <- as.numeric(input$userTeamTable_rows_selected)
     if (teamDetails == 1) {
+      output$userRatingTable <- renderText("")
+      output$userRatingPlot <- renderText("Rating history")
       updateActionButton(session, "userTeamDetails", "Details")
       output$userTeamTable = DT::renderDataTable(datatable(data = eloDf, selection = "single"))
       output$userTeamPlot <- renderPlot({
@@ -235,6 +232,8 @@ shinyServer(function(input, output, session) {
       teamDetails <<- 0
     } else{
       if(length(selectedRow)){
+        output$userRatingTable <- renderText(paste(eloDf[selectedRow,1],"rating history"))
+        output$userRatingPlot <- renderText(paste(eloDf[selectedRow,1],"rating history"))
         updateActionButton(session, "userTeamDetails", "Back")
         selectedTeamName <- eloDf[selectedRow,1]
         selectedTeamName <- str_replace_all(selectedTeamName, " ", ".")

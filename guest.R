@@ -38,6 +38,7 @@ guestMatch <- dbGetQuery(
 
 guestHomeTab <- tabPanel(title = 'Home',
                          sidebarLayout(sidebarPanel(
+                          h2(strong("Home"), class = "text-center"),
                           p("Welcome to CSGO statistics project that is focused on
                              analazing esport matches from Counter-Strike: Global
                              Offensive game to create rankings and predictions"),
@@ -47,18 +48,20 @@ guestHomeTab <- tabPanel(title = 'Home',
                          ))
 
 guestMatchTab <- tabPanel(title = 'Match history demo',
-                          sidebarLayout(
-                            sidebarPanel(
+                          sidebarLayout(sidebarPanel(
+                              h2(strong("Match history demo"), class = "text-center"),
                               p("This page shows the match history from the last 30 days"),
                               p("To see detailed map scores choose a row from the
                                 table then click the 'Details' button"),
                               actionButton("guestMatchDetails", "Details")
                             ),
-                            mainPanel(DT::dataTableOutput('guestMatchTable'))
+                            mainPanel(h3(strong(textOutput("guestMapDetails")), class = "text-center"),
+                              DT::dataTableOutput('guestMatchTable'))
                           ))
 
 guestRatingTab <- tabPanel(title = 'Team rating demo',
                            sidebarLayout(sidebarPanel(
+                             h2(strong("Team rating demo"), class = "text-center"),
                              p("This page shows the team ranking of top ten teams
                                created with the use of the 'Elo System' and is
                                updated after every match"),
@@ -68,13 +71,14 @@ guestRatingTab <- tabPanel(title = 'Team rating demo',
                              tabsetPanel(
                                type = "tabs",
                                tabPanel("Table", DT::dataTableOutput('guestTeamTable')),
-                               tabPanel("Plot", plotOutput('guestTeamPlot'))
+                               tabPanel("Plot", h3(strong("Top 10 teams ratings"), class = "text-center"),
+                                        plotOutput('guestTeamPlot'))
                              )
                            )))
 
 guestRegistrationTab <- tabPanel(title = 'Registration',
-                                 sidebarLayout(
-                                   sidebarPanel(
+                                 sidebarLayout(sidebarPanel(
+                                   h2(strong("Registration"), class = "text-center"),
                                      p("Fill in the data and click 'Confirm' button to register")
                                    ),
                                    mainPanel(
