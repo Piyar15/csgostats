@@ -39,6 +39,7 @@ guestMatch <- dbGetQuery(
 guestHomeTab <- tabPanel(title = 'Home',
                          sidebarLayout(sidebarPanel(
                           h2(strong("Home"), class = "text-center"),
+                          div(img(src = "CSGOlogo.png", width = "150px"), style = "text-align: center;"),
                           p("Welcome to CSGO statistics project that is focused on
                              analazing esport matches from Counter-Strike: Global
                              Offensive game to create rankings and predictions"),
@@ -91,7 +92,7 @@ guestRegistrationTab <- tabPanel(title = 'Registration',
                                      div(
                                        style = "text-align: center;",
                                      actionButton("comfirm", "Confirm", class = "btn-primary", style = "color: white")),
-                                     textOutput("invalidData"))
+                                     strong(textOutput("invalidData"), class = "text-center"))
                                    )
                                  ))
 

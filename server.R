@@ -324,7 +324,8 @@ shinyServer(function(input, output, session) {
   
   #user ranking
   
-  userRanking <- dbGetQuery(db, "SELECT login, user_score AS 'score' FROM `user` WHERE user_score IS NOT NULL ORDER BY user_score DESC")
+  userRanking <- dbGetQuery(db, "SELECT login, user_score AS 'score' FROM `user`
+                            WHERE user_score IS NOT NULL ORDER BY user_score DESC")
 
   #ranking table
   output$userGameRankingTable = DT::renderDataTable(datatable(data = userRanking, selection = "single"))
@@ -568,7 +569,11 @@ shinyServer(function(input, output, session) {
   
   #team add
   observeEvent(input$teamAdd, {
-    dbGetQuery(db, paste0("INSERT INTO `team`(`id_team`, `name`) VALUES (NUll,'",input$teamName,"')"))
+    teamNameValidation <- TRUE %in% (input$teamName == team$name)
+    if(!teamNameValidation){
+      output$occupiedTeamName <- renderText()
+    dbGetQuery(db, paste0("INSERT INTO `team`(`id_team`, `name`) VALUES (NUll,'",input$teamName,"')"))}
+    else {output$occupiedTeamName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     team <- dbGetQuery(db, 'SELECT * FROM `team`')
     output$teamTable = DT::renderDataTable(datatable(data = team, selection = "single"))
@@ -577,7 +582,11 @@ shinyServer(function(input, output, session) {
   #team edit
   observeEvent(input$teamEdit, {
     selectedRow <- as.numeric(input$teamTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `team` SET `name`='",input$teamName, "' WHERE `id_team`='",team[selectedRow,1],"'"))
+    teamNameValidation <- TRUE %in% (input$teamName == team$name)
+    if(!teamNameValidation){
+    output$occupiedTeamName <- renderText()
+    dbGetQuery(db,paste0("UPDATE `team` SET `name`='",input$teamName, "' WHERE `id_team`='",team[selectedRow,1],"'"))}
+    else {output$occupiedTeamName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     team <- dbGetQuery(db, 'SELECT * FROM `team`')
     output$teamTable = DT::renderDataTable(datatable(data = team, selection = "single"))
@@ -607,7 +616,11 @@ shinyServer(function(input, output, session) {
   
   #map add
   observeEvent(input$mapAdd, {
-    dbGetQuery(db, paste0("INSERT INTO `map`(`id_map`, `name`, `active_duty`) VALUES (NUll,'",input$mapName,"','",input$activeDuty,"')"))
+    mapNameValidation <- TRUE %in% (input$mapName == map$name)
+    if(!mapNameValidation){
+    output$occupiedMapName <- renderText()
+    dbGetQuery(db, paste0("INSERT INTO `map`(`id_map`, `name`, `active_duty`) VALUES (NUll,'",input$mapName,"','",input$activeDuty,"')"))}
+    else {output$occupiedMapName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     map <- dbGetQuery(db, 'SELECT * FROM `map`')
     output$mapTable = DT::renderDataTable(datatable(data = map, selection = "single"))
@@ -616,7 +629,11 @@ shinyServer(function(input, output, session) {
   #map edit
   observeEvent(input$mapEdit, {
     selectedRow <- as.numeric(input$mapTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `map` SET `name`='",input$mapName,"', `active_duty`='",input$activeDuty,"' WHERE `id_map`='",map[selectedRow,1],"'"))
+    mapNameValidation <- TRUE %in% (input$mapName == map$name)
+    if(!mapNameValidation){
+    output$occupiedMapName <- renderText()
+    dbGetQuery(db,paste0("UPDATE `map` SET `name`='",input$mapName,"', `active_duty`='",input$activeDuty,"' WHERE `id_map`='",map[selectedRow,1],"'"))}
+    else {output$occupiedMapName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     map <- dbGetQuery(db, 'SELECT * FROM `map`')
     output$mapTable = DT::renderDataTable(datatable(data = map, selection = "single"))
@@ -646,7 +663,11 @@ shinyServer(function(input, output, session) {
   
   #event add
   observeEvent(input$eventAdd, {
-    dbGetQuery(db, paste0("INSERT INTO `event`(`id_event`, `name`, `event_type`) VALUES (NUll,'",input$eventName,"','",input$eventType,"')"))
+    eventNameValidation <- TRUE %in% (input$eventName == event$name)
+    if(!eventNameValidation){
+    output$occupiedEventName <- renderText()
+    dbGetQuery(db, paste0("INSERT INTO `event`(`id_event`, `name`, `event_type`) VALUES (NUll,'",input$eventName,"','",input$eventType,"')"))}
+    else {output$occupiedEventName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     event <- dbGetQuery(db, 'SELECT * FROM `event`')
     output$eventTable = DT::renderDataTable(datatable(data = event, selection = "single"))
@@ -655,7 +676,11 @@ shinyServer(function(input, output, session) {
   #event edit
   observeEvent(input$eventEdit, {
     selectedRow <- as.numeric(input$eventTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `event` SET `name`='",input$eventName,"', `event_type`='",input$eventType,"' WHERE `id_event`='",event[selectedRow,1],"'"))
+    eventNameValidation <- TRUE %in% (input$eventName == event$name)
+    if(!eventNameValidation){
+      output$occupiedEventName <- renderText()
+    dbGetQuery(db,paste0("UPDATE `event` SET `name`='",input$eventName,"', `event_type`='",input$eventType,"' WHERE `id_event`='",event[selectedRow,1],"'"))}
+    else {output$occupiedEventName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
     event <- dbGetQuery(db, 'SELECT * FROM `event`')
     output$eventTable = DT::renderDataTable(datatable(data = event, selection = "single"))

@@ -7,7 +7,7 @@ shinyUI(fluidPage(
   navbarPage(
     title = 'Menu',
     id = 'navbar',
-    windowTitle = 'CSGO statistics',
+    windowTitle = 'CSGO statistics and prediction',
     collapsible = TRUE,
     theme = shinytheme('cosmo'),
     

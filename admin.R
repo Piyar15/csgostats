@@ -58,7 +58,8 @@ ORDER BY id_map_result DESC')
                    textInput("teamName", "Team name:"),
                    actionButton("teamAdd", "Add"),
                    actionButton("teamEdit", "Edit"),
-                   actionButton("teamDelete", "Delete")),
+                   actionButton("teamDelete", "Delete"),
+                   textOutput("occupiedTeamName")),
                mainPanel(DT::dataTableOutput('teamTable'))
              ))
     #map tabPanel
@@ -72,7 +73,8 @@ ORDER BY id_map_result DESC')
                      choices = c(0, 1)),
                    actionButton("mapAdd", "Add"),
                    actionButton("mapEdit", "Edit"),
-                   actionButton("mapDelete", "Delete")),
+                   actionButton("mapDelete", "Delete"),
+                   textOutput("occupiedMapName")),
                mainPanel(DT::dataTableOutput('mapTable'))
              ))
     #event tabPanel
@@ -86,7 +88,8 @@ ORDER BY id_map_result DESC')
                 choices = c("Online", "LAN")),
               actionButton("eventAdd", "Add"),
               actionButton("eventEdit", "Edit"),
-              actionButton("eventDelete", "Delete")),
+              actionButton("eventDelete", "Delete"),
+              textOutput("occupiedEventName")),
       mainPanel(DT::dataTableOutput('eventTable'))
     ))
     #user tabPanel
