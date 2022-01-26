@@ -120,6 +120,7 @@ shinyServer(function(input, output, session) {
 
   #registration data validation and db insert
   observeEvent(input$comfirm, {
+    user <- dbGetQuery(db, 'SELECT * FROM `user`')
     loginValidation <- TRUE %in% (input$login == user$login)
     loginLengthValidation <- nchar(input$login) >= 3 && nchar(input$login) <= 15
     passwordLengthValidation <- nchar(input$password) >= 8 && nchar(input$password) <= 23
@@ -334,14 +335,14 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$navbar,{
     if(input$navbar == "Match"){
-      team <- dbGetQuery(db, 'SELECT * FROM `team`')
-      event <- dbGetQuery(db, 'SELECT * FROM `event`')
+      team <<- dbGetQuery(db, 'SELECT * FROM `team`')
+      event <<- dbGetQuery(db, 'SELECT * FROM `event`')
       updateSelectInput(session, "team1Name", choices = team[,2])
       updateSelectInput(session, "team2Name", choices = team[,2])
       updateSelectInput(session, "matchEventName", choices = event[,2])
     }
     if(input$navbar == "Result"){
-      map <- dbGetQuery(db, 'SELECT * FROM `map`')
+      map <<- dbGetQuery(db, 'SELECT * FROM `map`')
       updateSelectInput(session, "mapScoreName", choices = map[,2])
     }
     if(input$navbar != "User prediction"){
@@ -358,7 +359,7 @@ shinyServer(function(input, output, session) {
   
   #match data fill in
   observe({
-    adminMatch <- dbGetQuery(
+    adminMatch <<- dbGetQuery(
       db,
       'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`
       FROM `match` AS m
@@ -385,7 +386,7 @@ shinyServer(function(input, output, session) {
     eventId <- dbGetQuery(db, paste0("SELECT id_event FROM `event` WHERE name = '",input$matchEventName,"'"))
     dbGetQuery(db, paste0("INSERT INTO `match`(`id_match`,`id_team_1`,`id_team_2`,`id_result`,`id_event`,`date`,`match_type`) VALUES (NUll,'",team1Id,"','",team2Id,"',Null,'",eventId,"','",input$date,"','",input$matchType,"')"))
     #datatable refresh
-    adminMatch <- dbGetQuery(
+    adminMatch <<- dbGetQuery(
       db,
       'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`
       FROM `match` AS m
@@ -408,7 +409,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$matchTable_rows_selected)
     dbGetQuery(db,paste0("UPDATE `match` SET `id_team_1`='",team1Id,"',`id_team_2`='",team2Id,"',`id_event`='",eventId,"',`date`='",input$date,"',`match_type`='",input$matchType,"' WHERE `id_match`='",match[selectedRow,1],"'"))
     #datatable refresh
-    adminMatch <- dbGetQuery(
+    adminMatch <<- dbGetQuery(
       db,
       'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`
       FROM `match` AS m
@@ -428,7 +429,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$matchTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `match` WHERE `id_match`='",match[selectedRow,1],"'"))
     #datatable refresh
-    adminMatch <- dbGetQuery(
+    adminMatch <<- dbGetQuery(
       db,
       'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`
       FROM `match` AS m
@@ -445,7 +446,7 @@ shinyServer(function(input, output, session) {
   
   #match to result assigning
   observeEvent(input$matchDetails, {
-    adminMatch <- dbGetQuery(
+    adminMatch <<- dbGetQuery(
       db,
       'SELECT m.id_match, t1.name AS `team1`, t2.name AS `team2`, e.name AS `event`, date, match_type AS `match type`
       FROM `match` AS m
@@ -469,7 +470,7 @@ shinyServer(function(input, output, session) {
   
   #result data fill in
   observe({
-    adminResult <- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
+    adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC")
@@ -484,7 +485,7 @@ shinyServer(function(input, output, session) {
     mapId <- dbGetQuery(db, paste0("SELECT id_map FROM `map` WHERE name = '",input$mapScoreName,"'"))
     dbGetQuery(db, paste0("INSERT INTO `map_result`(`id_map_result`, `map_score_1`, `map_score_2`, `id_map`) VALUES (NUll,'",input$team1Score,"','",input$team2Score,"','",mapId,"')"))
     #datatable refresh
-    adminResult <- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
+    adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC")
@@ -497,7 +498,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$resultTable_rows_selected)
     dbGetQuery(db,paste0("UPDATE `map_result` SET `map_score_1`='",input$team1Score,"',`map_score_2`='",input$team2Score,"',`id_map`='",mapId,"' WHERE `id_map_result`='",result[selectedRow,1],"'"))
     #datatable refresh
-    adminResult <- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
+    adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC ")
@@ -509,7 +510,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$resultTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `map_result` WHERE `id_map_result`='",result[selectedRow,1],"'"))
     #datatable refresh
-    adminResult <- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
+    adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC")
@@ -518,7 +519,7 @@ shinyServer(function(input, output, session) {
   
   #match to result assigning
   observeEvent(input$resultComfirm, {
-    adminResult <- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
+    adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
     ON mr.id_map=m.id_map
     ORDER BY id_map_result DESC")
@@ -562,7 +563,7 @@ shinyServer(function(input, output, session) {
   
   #team data fill in
   observe({
-    team <- dbGetQuery(db, 'SELECT * FROM `team`')
+    team <<- dbGetQuery(db, 'SELECT * FROM `team`')
     selectedRow <- as.numeric(input$teamTable_rows_selected)
     updateTextInput(session, "teamName", value = team[selectedRow,2])
   })
@@ -571,11 +572,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$teamAdd, {
     teamNameValidation <- TRUE %in% (input$teamName == team$name)
     if(!teamNameValidation){
-      output$occupiedTeamName <- renderText()
+      output$occupiedTeamName <- renderText("")
     dbGetQuery(db, paste0("INSERT INTO `team`(`id_team`, `name`) VALUES (NUll,'",input$teamName,"')"))}
     else {output$occupiedTeamName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    team <- dbGetQuery(db, 'SELECT * FROM `team`')
+    team <<- dbGetQuery(db, 'SELECT * FROM `team`')
     output$teamTable = DT::renderDataTable(datatable(data = team, selection = "single"))
   })
   
@@ -584,11 +585,11 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$teamTable_rows_selected)
     teamNameValidation <- TRUE %in% (input$teamName == team$name)
     if(!teamNameValidation){
-    output$occupiedTeamName <- renderText()
+    output$occupiedTeamName <- renderText("")
     dbGetQuery(db,paste0("UPDATE `team` SET `name`='",input$teamName, "' WHERE `id_team`='",team[selectedRow,1],"'"))}
     else {output$occupiedTeamName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    team <- dbGetQuery(db, 'SELECT * FROM `team`')
+    team <<- dbGetQuery(db, 'SELECT * FROM `team`')
     output$teamTable = DT::renderDataTable(datatable(data = team, selection = "single"))
   })
   
@@ -597,7 +598,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$teamTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `team` WHERE `id_team`='",team[selectedRow,1],"'"))
     #datatable refresh
-    team <- dbGetQuery(db, 'SELECT * FROM `team`')
+    team <<- dbGetQuery(db, 'SELECT * FROM `team`')
     output$teamTable = DT::renderDataTable(datatable(data = team, selection = "single"))
   })
   
@@ -608,7 +609,7 @@ shinyServer(function(input, output, session) {
   
   #map data fill in
   observe({
-    map <- dbGetQuery(db, 'SELECT * FROM `map`')
+    map <<- dbGetQuery(db, 'SELECT * FROM `map`')
     selectedRow <- as.numeric(input$mapTable_rows_selected)
     updateTextInput(session, "mapName", value = map[selectedRow,2])
     updateSelectInput(session, "activeDuty", selected = map[selectedRow,3])
@@ -618,11 +619,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$mapAdd, {
     mapNameValidation <- TRUE %in% (input$mapName == map$name)
     if(!mapNameValidation){
-    output$occupiedMapName <- renderText()
+    output$occupiedMapName <- renderText("")
     dbGetQuery(db, paste0("INSERT INTO `map`(`id_map`, `name`, `active_duty`) VALUES (NUll,'",input$mapName,"','",input$activeDuty,"')"))}
     else {output$occupiedMapName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    map <- dbGetQuery(db, 'SELECT * FROM `map`')
+    map <<- dbGetQuery(db, 'SELECT * FROM `map`')
     output$mapTable = DT::renderDataTable(datatable(data = map, selection = "single"))
   })
   
@@ -631,11 +632,11 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$mapTable_rows_selected)
     mapNameValidation <- TRUE %in% (input$mapName == map$name)
     if(!mapNameValidation){
-    output$occupiedMapName <- renderText()
+    output$occupiedMapName <- renderText("")
     dbGetQuery(db,paste0("UPDATE `map` SET `name`='",input$mapName,"', `active_duty`='",input$activeDuty,"' WHERE `id_map`='",map[selectedRow,1],"'"))}
     else {output$occupiedMapName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    map <- dbGetQuery(db, 'SELECT * FROM `map`')
+    map <<- dbGetQuery(db, 'SELECT * FROM `map`')
     output$mapTable = DT::renderDataTable(datatable(data = map, selection = "single"))
   })
   
@@ -644,7 +645,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$mapTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `map` WHERE `id_map`='",map[selectedRow,1],"'"))
     #datatable refresh
-    map <- dbGetQuery(db, 'SELECT * FROM `map`')
+    map <<- dbGetQuery(db, 'SELECT * FROM `map`')
     output$mapTable = DT::renderDataTable(datatable(data = map, selection = "single"))
   })
   
@@ -655,7 +656,7 @@ shinyServer(function(input, output, session) {
   
   #event data fill in
   observe({
-    event <- dbGetQuery(db, 'SELECT * FROM `event`')
+    event <<- dbGetQuery(db, 'SELECT * FROM `event`')
     selectedRow <- as.numeric(input$eventTable_rows_selected)
     updateTextInput(session, "eventName", value = event[selectedRow,2])
     updateSelectInput(session, "eventType", selected = event[selectedRow,3])
@@ -665,11 +666,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$eventAdd, {
     eventNameValidation <- TRUE %in% (input$eventName == event$name)
     if(!eventNameValidation){
-    output$occupiedEventName <- renderText()
+    output$occupiedEventName <- renderText("")
     dbGetQuery(db, paste0("INSERT INTO `event`(`id_event`, `name`, `event_type`) VALUES (NUll,'",input$eventName,"','",input$eventType,"')"))}
     else {output$occupiedEventName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    event <- dbGetQuery(db, 'SELECT * FROM `event`')
+    event <<- dbGetQuery(db, 'SELECT * FROM `event`')
     output$eventTable = DT::renderDataTable(datatable(data = event, selection = "single"))
   })
   
@@ -678,11 +679,11 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$eventTable_rows_selected)
     eventNameValidation <- TRUE %in% (input$eventName == event$name)
     if(!eventNameValidation){
-      output$occupiedEventName <- renderText()
+      output$occupiedEventName <- renderText("")
     dbGetQuery(db,paste0("UPDATE `event` SET `name`='",input$eventName,"', `event_type`='",input$eventType,"' WHERE `id_event`='",event[selectedRow,1],"'"))}
     else {output$occupiedEventName <- renderText({paste("This name is already occupied")})}
     #datatable refresh
-    event <- dbGetQuery(db, 'SELECT * FROM `event`')
+    event <<- dbGetQuery(db, 'SELECT * FROM `event`')
     output$eventTable = DT::renderDataTable(datatable(data = event, selection = "single"))
   })
   
@@ -691,7 +692,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$eventTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `event` WHERE `id_event`='",event[selectedRow,1],"'"))
     #datatable refresh
-    event <- dbGetQuery(db, 'SELECT * FROM `event`')
+    event <<- dbGetQuery(db, 'SELECT * FROM `event`')
     output$eventTable = DT::renderDataTable(datatable(data = event, selection = "single"))
   })
   
@@ -702,7 +703,7 @@ shinyServer(function(input, output, session) {
   
   #user data fill in
   observe({
-    user <- dbGetQuery(db, 'SELECT * FROM `user`')
+    user <<- dbGetQuery(db, 'SELECT * FROM `user`')
     selectedRow <- as.numeric(input$userTable_rows_selected)
     updateTextInput(session, "userLogin", value = user[selectedRow,2])
     updateTextInput(session, "userPassword", value = user[selectedRow,3])
@@ -712,19 +713,63 @@ shinyServer(function(input, output, session) {
   
   #user add
   observeEvent(input$userAdd, {
-    dbGetQuery(db, paste0("INSERT INTO `user`(`id_user`, `login`, `password`, `email`, `type`) VALUES (NUll,'",input$userLogin,"','",input$userPassword,"','",input$userEmail,"','",input$userType,"')"))
-    #datatable refresh
-    user <- dbGetQuery(db, 'SELECT * FROM `user`')
-    output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
+    user <<- dbGetQuery(db, 'SELECT * FROM `user`')
+    loginValidation <- TRUE %in% (input$userLogin == user$login)
+    loginLengthValidation <- nchar(input$userLogin) >= 3 && nchar(input$userLogin) <= 15
+    passwordLengthValidation <- nchar(input$userPassword) >= 8 && nchar(input$userPassword) <= 23
+    emailFormatValidation <- grepl(
+      "\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
+      as.character(input$userEmail),
+      ignore.case = TRUE)
+    emailValidation <- TRUE %in% (input$userEmail == user$email)
+      if (!loginLengthValidation)
+        output$invalidUserData <- renderText({paste("Login should have between 3 and 15 characters")})
+      else if(loginValidation)
+        output$invalidUserData <- renderText({paste("This login is already occupied")})
+      else if (!passwordLengthValidation)
+        output$invalidUserData <- renderText({paste("Password should have between 8 and 23 characters")})
+      else if (!emailFormatValidation)
+        output$invalidUserData <- renderText({paste("Please input a valid E-mail address")})
+      else if(emailValidation)
+        output$invalidUserData <- renderText({paste("This E-mail address is already occupied")})
+      else{
+        output$invalidUserData <- renderText("")
+        dbGetQuery(db, paste0("INSERT INTO `user`(`id_user`, `login`, `password`, `email`, `type`) VALUES (NUll,'",input$userLogin,"','",input$userPassword,"','",input$userEmail,"','",input$userType,"')"))
+        #datatable refresh
+        user <<- dbGetQuery(db, 'SELECT * FROM `user`')
+        output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
+        }
   })
   
   #user edit
   observeEvent(input$userEdit, {
+    user <<- dbGetQuery(db, 'SELECT * FROM `user`')
     selectedRow <- as.numeric(input$userTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `user` SET `login`='",input$userLogin,"', `password`='",input$userPassword,"', `email`='",input$userEmail,"', `type`='",input$userType,"' WHERE `id_user`='",user[selectedRow,1],"'"))
-    #datatable refresh
-    user <- dbGetQuery(db, 'SELECT * FROM `user`')
-    output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
+    loginValidation <- TRUE %in% (input$userLogin == user$login)
+    loginLengthValidation <- nchar(input$userLogin) >= 3 && nchar(input$userLogin) <= 15
+    passwordLengthValidation <- nchar(input$userPassword) >= 8 && nchar(input$userPassword) <= 23
+    emailFormatValidation <- grepl(
+      "\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
+      as.character(input$userEmail),
+      ignore.case = TRUE)
+    emailValidation <- TRUE %in% (input$userEmail == user$email)
+    if (!loginLengthValidation)
+      output$invalidUserData <- renderText({paste("Login should have between 3 and 15 characters")})
+    else if(loginValidation)
+      output$invalidUserData <- renderText({paste("This login is already occupied")})
+    else if (!passwordLengthValidation)
+      output$invalidUserData <- renderText({paste("Password should have between 8 and 23 characters")})
+    else if (!emailFormatValidation)
+      output$invalidUserData <- renderText({paste("Please input a valid E-mail address")})
+    else if(emailValidation)
+      output$invalidUserData <- renderText({paste("This E-mail address is already occupied")})
+    else{
+      output$invalidUserData <- renderText("")
+        dbSendQuery(db,paste0("UPDATE `user` SET `login`='",input$userLogin,"', `password`='",input$userPassword,"', `email`='",input$userEmail,"', `type`='",input$userType,"' WHERE `id_user`='",user[selectedRow,1],"'"))
+        #datatable refresh
+        user <<- dbGetQuery(db, 'SELECT * FROM `user`')
+        output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
+      }
   })
   
   #user delete
@@ -732,7 +777,7 @@ shinyServer(function(input, output, session) {
     selectedRow <- as.numeric(input$userTable_rows_selected)
     dbGetQuery(db,paste0("DELETE FROM `user` WHERE `id_user`='",user[selectedRow,1],"'"))
     #datatable refresh
-    user <- dbGetQuery(db, 'SELECT * FROM `user`')
+    user <<- dbGetQuery(db, 'SELECT * FROM `user`')
     output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
   })
 })

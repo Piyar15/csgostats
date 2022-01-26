@@ -105,6 +105,7 @@ ORDER BY id_map_result DESC')
                 choices = c("admin", "user")),
               actionButton("userAdd", "Add"),
               actionButton("userEdit", "Edit"),
-              actionButton("userDelete", "Delete")),
+              actionButton("userDelete", "Delete"),
+              textOutput("invalidUserData")),
       mainPanel(DT::dataTableOutput('userTable'))
     ))
