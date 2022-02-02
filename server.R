@@ -407,7 +407,7 @@ shinyServer(function(input, output, session) {
     team2Id <- dbGetQuery(db, paste0("SELECT id_team FROM `team` WHERE name = '",input$team2Name,"'"))
     eventId <- dbGetQuery(db, paste0("SELECT id_event FROM `event` WHERE name = '",input$matchEventName,"'"))
     selectedRow <- as.numeric(input$matchTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `match` SET `id_team_1`='",team1Id,"',`id_team_2`='",team2Id,"',`id_event`='",eventId,"',`date`='",input$date,"',`match_type`='",input$matchType,"' WHERE `id_match`='",match[selectedRow,1],"'"))
+    dbSendQuery(db,paste0("UPDATE `match` SET `id_team_1`='",team1Id,"',`id_team_2`='",team2Id,"',`id_event`='",eventId,"',`date`='",input$date,"',`match_type`='",input$matchType,"' WHERE `id_match`='",adminMatch[selectedRow,1],"'"))
     #datatable refresh
     adminMatch <<- dbGetQuery(
       db,
@@ -424,10 +424,10 @@ shinyServer(function(input, output, session) {
     output$matchTable = DT::renderDataTable(datatable(data = adminMatch, selection = "single"))
   })
   
-  #match edit
+  #match delete
   observeEvent(input$matchDelete, {
     selectedRow <- as.numeric(input$matchTable_rows_selected)
-    dbGetQuery(db,paste0("DELETE FROM `match` WHERE `id_match`='",match[selectedRow,1],"'"))
+    dbGetQuery(db,paste0("DELETE FROM `match` WHERE `id_match`='",adminMatch[selectedRow,1],"'"))
     #datatable refresh
     adminMatch <<- dbGetQuery(
       db,
@@ -496,7 +496,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$resultEdit, {
     mapId <- dbGetQuery(db, paste0("SELECT id_map FROM `map` WHERE name = '",input$mapScoreName,"'"))
     selectedRow <- as.numeric(input$resultTable_rows_selected)
-    dbGetQuery(db,paste0("UPDATE `map_result` SET `map_score_1`='",input$team1Score,"',`map_score_2`='",input$team2Score,"',`id_map`='",mapId,"' WHERE `id_map_result`='",result[selectedRow,1],"'"))
+    dbGetQuery(db,paste0("UPDATE `map_result` SET `map_score_1`='",input$team1Score,"',`map_score_2`='",input$team2Score,"',`id_map`='",mapId,"' WHERE `id_map_result`='",adminResult[selectedRow,1],"'"))
     #datatable refresh
     adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
@@ -508,7 +508,7 @@ shinyServer(function(input, output, session) {
   #result delete
   observeEvent(input$resultDelete, {
     selectedRow <- as.numeric(input$resultTable_rows_selected)
-    dbGetQuery(db,paste0("DELETE FROM `map_result` WHERE `id_map_result`='",result[selectedRow,1],"'"))
+    dbGetQuery(db,paste0("DELETE FROM `map_result` WHERE `id_map_result`='",adminResult[selectedRow,1],"'"))
     #datatable refresh
     adminResult <<- dbGetQuery(db, "SELECT mr.`id_map_result`, mr.`map_score_1` As `score 1`, mr.`map_score_2` AS `score 2`, m.`name` AS `map name` FROM `map_result` AS mr
     LEFT JOIN `map` AS m
