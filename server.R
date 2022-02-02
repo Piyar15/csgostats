@@ -780,7 +780,17 @@ shinyServer(function(input, output, session) {
     user <<- dbGetQuery(db, 'SELECT * FROM `user`')
     output$userTable = DT::renderDataTable(datatable(data = user, selection = "single"))
   })
+  
+  #clear environment
+  session$onSessionEnded(function() {
+    rm(list = ls())
+  })
+  
 })
 
 #db disconnect
-onStop(function(){dbDisconnect(db)})
+onStop(function(){
+  dbDisconnect(db)
+  })
+
+
